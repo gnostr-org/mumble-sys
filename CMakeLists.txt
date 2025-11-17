@@ -75,7 +75,8 @@ option(symbols "Build binaries in a way that allows easier debugging." OFF)
 option(warnings-as-errors "All warnings are treated as errors." ON)
 
 option(client "Build the client (Mumble)" ON)
-option(server "Build the server (Murmur)" ON)
+option(BUILD_MUMBLE_CLIENT "Build the Mumble client executable" OFF)
+option(BUILD_MUMBLE_SERVER "Build the Mumble server executable" OFF)
 option(packaging "Build package." OFF)
 option(tests "Build tests." ${packaging})
 option(plugins "Build plugins." ON)
@@ -236,7 +237,7 @@ if (packaging AND WIN32)
 	string(STRIP ${VC_REDIST_VERSION} VC_REDIST_VERSION)
 endif()
 
-if(client OR server)
+if(BUILD_MUMBLE_CLIENT OR BUILD_MUMBLE_SERVER)
 	add_subdirectory(src)
 endif()
 

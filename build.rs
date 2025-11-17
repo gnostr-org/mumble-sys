@@ -42,6 +42,7 @@ fn main() {
         .blocklist_type("API::MumbleAPICurator")
         .blocklist_type("API::MumbleAPI")
         .blocklist_type("API::PluginData")
+        .allowlist_type("MumbleAPI_v_1_2_0")
         .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()

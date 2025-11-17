@@ -40,8 +40,8 @@ add_compile_options(${MUMBLE_COMPILER_FLAGS})
 
 add_library(mumble STATIC)
 
-protobuf_generate(LANGUAGE cpp TARGET shared PROTOS ${PROTO_FILE} OUT_VAR BUILT_PROTO_FILES)
-protobuf_generate(LANGUAGE cpp TARGET shared PROTOS ${UDP_PROTO_FILE} OUT_VAR BUILT_UDP_PROTO_FILES)
+protobuf_generate(LANGUAGE cpp TARGET mumble PROTOS ${PROTO_FILE} OUT_VAR BUILT_PROTO_FILES)
+protobuf_generate(LANGUAGE cpp TARGET mumble PROTOS ${UDP_PROTO_FILE} OUT_VAR BUILT_UDP_PROTO_FILES)
 
 # Disable warnings for the generated source files
 foreach(CURRENT_FILE IN LISTS BUILT_PROTO_FILES BUILT_UDP_PROTO_FILES)
@@ -148,8 +148,8 @@ add_custom_command(
 add_custom_target(generate_license_header
 	DEPENDS "licenses.h"
 )
-add_dependencies(shared generate_license_header)
-target_include_directories(shared PRIVATE "${CMAKE_BINARY_DIR}")
+add_dependencies(mumble generate_license_header)
+target_include_directories(mumble PRIVATE "${CMAKE_BINARY_DIR}")
 
 target_sources(mumble
 	PRIVATE
@@ -157,7 +157,7 @@ target_sources(mumble
 		${SHARED_SOURCES}
 )
 
-target_compile_definitions(shared
+target_compile_definitions(mumble
 	PUBLIC
 		"MUMBLE_VERSION=${CMAKE_PROJECT_VERSION}"
 		"MUMBLE_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}"
@@ -165,12 +165,12 @@ target_compile_definitions(shared
 		"MUMBLE_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}"
 )
 
-target_compile_definitions(shared
+target_compile_definitions(mumble
 	PRIVATE
 		"QT_RESTRICTED_CAST_FROM_ASCII"
 )
 
-target_include_directories(shared
+target_include_directories(mumble
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_CURRENT_BINARY_DIR}
@@ -178,7 +178,7 @@ target_include_directories(shared
 		"${3RDPARTY_DIR}/arc4random"
 )
 
-target_link_libraries(shared
+target_link_libraries(mumble
 	PUBLIC
 		protobuf::libprotobuf
 		OpenSSL::Crypto
@@ -189,14 +189,14 @@ target_link_libraries(shared
 )
 
 if(WIN32)
-	target_link_libraries(shared PUBLIC qwave.lib)
+	target_link_libraries(mumble PUBLIC qwave.lib)
 elseif(APPLE)
 	find_library(LIB_CORESERVICES "CoreServices")
-	target_link_libraries(shared PUBLIC ${LIB_CORESERVICES})
+	target_link_libraries(mumble PUBLIC ${LIB_CORESERVICES})
 endif()
 
 if(qssldiffiehellmanparameters)
-	target_compile_definitions(shared PUBLIC "USE_QSSLDIFFIEHELLMANPARAMETERS")
+	target_compile_definitions(mumble PUBLIC "USE_QSSLDIFFIEHELLMANPARAMETERS")
 endif()
 
 # Note: We always include and link against Tracy but it is only enabled, if we set the TRACY_ENABLE cmake option
@@ -214,7 +214,7 @@ message(STATUS "Tracy: ${TRACY_ENABLE}")
 # Restore whatever BUILD_SHARED_LIBS was set to before
 set(BUILD_SHARED_LIBS ${PREV_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
-target_link_libraries(shared PUBLIC Tracy::TracyClient)
+target_link_libraries(mumble PUBLIC Tracy::TracyClient)
 
 if(bundled-spdlog)
 	set(SPDLOG_SYSTEM_INCLUDES ON)
@@ -222,7 +222,7 @@ if(bundled-spdlog)
 else()
 	find_pkg("spdlog" REQUIRED)
 endif()
-target_link_libraries(shared PUBLIC spdlog::spdlog)
+target_link_libraries(mumble PUBLIC spdlog::spdlog)
 
 if (bundled-cli11)
 	add_subdirectory("${3RDPARTY_DIR}/CLI11" "${CMAKE_CURRENT_BINARY_DIR}/CLI11" EXCLUDE_FROM_ALL)
@@ -230,7 +230,7 @@ else()
 	find_pkg("CLI11" 2 REQUIRED)
 endif()
 
-if(client)
+if(BUILD_MUMBLE_CLIENT)
 	add_subdirectory(mumble)
 endif()
 
