@@ -7,7 +7,7 @@ fn main() {
 
     let dst = config.build();
 
-    println!("cargo:rustc-link-search=native={}/lib", dst.display());
+    println!("cargo:rustc-link-search=native={}/lib/mumble", dst.display());
     println!("cargo:rustc-link-lib=static=mumble");
     println!("cargo:rustc-link-lib=dylib=c++");
 

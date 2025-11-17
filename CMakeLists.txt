@@ -237,9 +237,7 @@ if (packaging AND WIN32)
 	string(STRIP ${VC_REDIST_VERSION} VC_REDIST_VERSION)
 endif()
 
-if(BUILD_MUMBLE_CLIENT OR BUILD_MUMBLE_SERVER)
-	add_subdirectory(src)
-endif()
+add_subdirectory(src)
 
 add_subdirectory(auxiliary_files)
 
