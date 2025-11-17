@@ -70,7 +70,33 @@ fn main() {
     println!("cargo:rustc-link-lib=static=mumble");
     println!("cargo:rustc-link-lib=dylib=c++");
 
-    let mut builder = bindgen::Builder::default()\n        .header(\"wrapper.h\")\n        .clang_arg(\"-std=c++20\")\n        .clang_arg(\"--target=aarch64-apple-darwin\");\n\n    // Add project-specific include paths\n    builder = builder.clang_arg(\"-I.\"); // Add mumble-sys root\n    builder = builder.clang_arg(\"-I./src\"); // Add mumble-sys/src\n    builder = builder.clang_arg(\"-I./src/mumble\"); // Add mumble-sys/src/mumble\n    builder = builder.clang_arg(\"-I./plugins\"); // Add mumble-sys/plugins\n\n    // Get default clang include paths\n    let clang_output = Command::new(\"clang\")\n        .arg(\"-v\")\n        .arg(\"-E\")\n        .arg(\"-x\")\n        .arg(\"c++\")\n        .arg(\"/dev/null\")\n        .output()\n        .expect(\"Failed to execute clang command\");\n\n    let stderr = String::from_utf8_lossy(&clang_output.stderr);\n\n    for line in stderr.lines() {\n        if line.starts_with(\"#include <...\> search starts here:\") {\n            // Start parsing include paths\n            for include_path_line in stderr.lines().skip_while(|&l| l != line).skip(1) {\n                if include_path_line.starts_with(\"End of search list.\") {\n                    break;\n                }\n                let path = include_path_line.trim();\n                if !path.is_empty() {\n                    builder = builder.clang_arg(format!(\"-I{}\", path));\n                }\n            }\n            break;\n        }\n    }\n\n    let bindings = builder\n        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))\n        .generate()\n        .expect(\"Unable to generate bindings\");
+    let mut builder = bindgen::Builder::default()
+        .header("wrapper.h")
+        .clang_arg("-std=c++20")
+        .clang_arg("--target=aarch64-apple-darwin");
+
+    // Add project-specific include paths
+    builder = builder.clang_arg("-I."); // Add mumble-sys root
+    builder = builder.clang_arg("-I./src"); // Add mumble-sys/src
+    builder = builder.clang_arg("-I./src/mumble"); // Add mumble-sys/src/mumble
+    builder = builder.clang_arg("-I./plugins"); // Add mumble-sys/plugins
+
+    // Add Homebrew and dependency include paths
+    builder = builder.clang_arg("-I/opt/homebrew/include");
+    builder = builder.clang_arg(format!("-I{}/include", ice_prefix));
+    builder = builder.clang_arg(format!("-I{}/include", mysql_prefix));
+
+    // Add Xcode SDK include paths
+    if let Some(sdk_path) = find_xcode_sdk_path() {
+        builder = builder.clang_arg(format!("-I{}/usr/include", sdk_path));
+        builder = builder.clang_arg(format!("-I{}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers", sdk_path));
+        builder = builder.clang_arg(format!("-I{}/usr/include/c++/v1", sdk_path));
+    }
+
+    let bindings = builder
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .generate()
+        .expect("Unable to generate bindings");
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
