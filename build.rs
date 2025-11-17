@@ -4,21 +4,6 @@ use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 
-fn find_xcode_sdk_path() -> Option<String> {
-    let output = Command::new("xcrun")
-        .arg("--show-sdk-path")
-        .output()
-        .ok()?;
-
-    if output.status.success() {
-        String::from_utf8(output.stdout)
-            .ok()
-            .map(|s| s.trim().to_string())
-    } else {
-        None
-    }
-}
-
 fn main() {
     // Get Homebrew installation prefix for 'ice' package
     let ice_prefix_output = Command::new("brew")
@@ -73,7 +58,10 @@ fn main() {
     let mut builder = bindgen::Builder::default()
         .header("wrapper.h")
         .clang_arg("-std=c++20")
-        .clang_arg("--target=aarch64-apple-darwin");
+        .clang_arg("--target=aarch64-apple-darwin")
+        .clang_arg("-x")
+        .clang_arg("c++")
+        .clang_arg("-v");
 
     // Add project-specific include paths
     builder = builder.clang_arg("-I."); // Add mumble-sys root
@@ -82,16 +70,26 @@ fn main() {
     builder = builder.clang_arg("-I./plugins"); // Add mumble-sys/plugins
 
     // Add Homebrew and dependency include paths
-    builder = builder.clang_arg("-I/opt/homebrew/include");
     builder = builder.clang_arg(format!("-I{}/include", ice_prefix));
     builder = builder.clang_arg(format!("-I{}/include", mysql_prefix));
 
-    // Add Xcode SDK include paths
-    if let Some(sdk_path) = find_xcode_sdk_path() {
-        builder = builder.clang_arg(format!("-I{}/usr/include", sdk_path));
-        builder = builder.clang_arg(format!("-I{}/System/Library/Frameworks/Kernel.framework/Versions/A/Headers", sdk_path));
-        builder = builder.clang_arg(format!("-I{}/usr/include/c++/v1", sdk_path));
-    }
+    // Add Qt6 include paths based on qmake generated Makefile
+    builder = builder.clang_arg("-I/opt/homebrew/Cellar/qt/6.9.3/lib/QtCore.framework/Headers");
+    builder = builder.clang_arg("-F/opt/homebrew/Cellar/qt/6.9.3/lib");
+
+    let bindings = builder
+        .blocklist_type("std::memory_order")
+        .blocklist_type("std::__1::memory_order")
+        .blocklist_type("char_type")
+        .blocklist_type("rep")
+        .blocklist_type("type_")
+        .blocklist_type("std___1___forward_list_node_value_type")
+        .blocklist_type("std::.*")
+        .blocklist_type("__gnu_cxx::.*")
+        .blocklist_type("__.*")
+        .default_non_copy_union_style(bindgen::NonCopyUnionStyle::ManuallyDrop);
+
+    builder.dump_preprocessed_input().expect("Failed to dump preprocessed input");
 
     let bindings = builder
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
