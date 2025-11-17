@@ -38,7 +38,7 @@ find_pkg(Protobuf REQUIRED)
 
 add_compile_options(${MUMBLE_COMPILER_FLAGS})
 
-add_library(shared STATIC)
+add_library(mumble STATIC)
 
 protobuf_generate(LANGUAGE cpp TARGET shared PROTOS ${PROTO_FILE} OUT_VAR BUILT_PROTO_FILES)
 protobuf_generate(LANGUAGE cpp TARGET shared PROTOS ${UDP_PROTO_FILE} OUT_VAR BUILT_UDP_PROTO_FILES)
@@ -48,7 +48,7 @@ foreach(CURRENT_FILE IN LISTS BUILT_PROTO_FILES BUILT_UDP_PROTO_FILES)
 	set_source_files_properties("${CURRENT_FILE}" PROPERTIES COMPILE_FLAGS "-w")
 endforeach()
 
-set_target_properties(shared
+set_target_properties(mumble
 	PROPERTIES
 		AUTOMOC ON
 		# We explicitly tell CMake not to call any autogen tools (e.g. MOC) for the generated files.
@@ -151,7 +151,7 @@ add_custom_target(generate_license_header
 add_dependencies(shared generate_license_header)
 target_include_directories(shared PRIVATE "${CMAKE_BINARY_DIR}")
 
-target_sources(shared
+target_sources(mumble
 	PRIVATE
 		${SHARED_HEADERS}
 		${SHARED_SOURCES}
