@@ -62,7 +62,7 @@ include(CheckIPOSupported)
 find_package(Python 3 COMPONENTS Interpreter REQUIRED)
 
 find_package(PostgreSQL REQUIRED)
-find_package(MySQL REQUIRED)
+# find_package(MySQL REQUIRED)
 
 
 check_ipo_supported(RESULT LTO_DEFAULT)
