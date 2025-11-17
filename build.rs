@@ -10,9 +10,9 @@ fn main() {
     if let Ok(mysql_prefix) = env::var("MYSQL_PREFIX") {
         let cmake_prefix_path = format!("{};/opt/homebrew", mysql_prefix);
         config.define("CMAKE_PREFIX_PATH", cmake_prefix_path);
-        config.define("MySQL_DIR", mysql_prefix);
+        config.define("MySQL_DIR", mysql_prefix.clone());
         config.cxxflag(format!("-I{}/include", mysql_prefix));
-        config.link_flag(format!("-L{}/lib", mysql_prefix));
+        config.cxxflag(format!("-L{}/lib", mysql_prefix));
     }
 
     let dst = config.build();
