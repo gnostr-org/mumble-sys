@@ -240,7 +240,7 @@ if(BUILD_MUMBLE_CLIENT)
 	add_subdirectory(mumble)
 endif()
 
-if(server)
+if(BUILD_MUMBLE_SERVER)
 	add_subdirectory(database)
 	add_subdirectory(murmur)
 endif()

@@ -88,16 +88,29 @@ target_compile_definitions(mumble_server_object_lib
 	PUBLIC
 		"MURMUR"
 		"QT_RESTRICTED_CAST_FROM_ASCII"
+		"MUMBLE_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}"
+		"MUMBLE_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}"
+		"MUMBLE_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}"
 )
 
 target_include_directories(mumble_server_object_lib
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${SHARED_SOURCE_DIR}
+		/opt/homebrew/Cellar/qt/6.9.3/include
+		/opt/homebrew/Cellar/qt/6.9.3/include/QtCore
+		/opt/homebrew/Cellar/qt/6.9.3/include/QtNetwork
+		/opt/homebrew/Cellar/qt/6.9.3/include/QtXml
+		/opt/homebrew/Cellar/qt/6.9.3/lib/QtCore.framework/Headers
+		/opt/homebrew/Cellar/qt/6.9.3/lib/QtNetwork.framework/Headers
+		/opt/homebrew/Cellar/qt/6.9.3/lib/QtXml.framework/Headers
+		${CMAKE_BINARY_DIR}/src
 )
 target_link_libraries(mumble_server_object_lib
 	PUBLIC
-		shared
+		Qt6::Core
+		Qt6::Network
+		Qt6::Xml
 		spdlog::spdlog
 )
 

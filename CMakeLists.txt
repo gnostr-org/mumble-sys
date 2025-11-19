@@ -79,7 +79,7 @@ option(warnings-as-errors "All warnings are treated as errors." ON)
 
 option(client "Build the client (Mumble)" ON)
 option(BUILD_MUMBLE_CLIENT "Build the Mumble client executable" OFF)
-option(BUILD_MUMBLE_SERVER "Build the Mumble server executable" OFF)
+option(BUILD_MUMBLE_SERVER "Build the Mumble server executable" ON)
 option(packaging "Build package." OFF)
 option(tests "Build tests." ${packaging})
 option(plugins "Build plugins." ON)
