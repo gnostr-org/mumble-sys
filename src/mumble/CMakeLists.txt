@@ -333,40 +333,20 @@ set(MUMBLE_SOURCES
 	"${SHARED_SOURCE_DIR}/SignalCurry.h"
 	"${SHARED_SOURCE_DIR}/User.cpp"
 	"${SHARED_SOURCE_DIR}/User.h"
-
-	"mumble.qrc"
-	"${CMAKE_SOURCE_DIR}/themes/DefaultTheme.qrc"
-	# FFI
-	../ffi.cpp
 )
-
-# FFI Callbacks
-qt_wrap_cpp(mumble_FFI_MOC ../ffi.cpp)
-
-list(APPEND mumble_SOURCES
-	${mumble_FFI_MOC}
-)
-
-add_library(smallft STATIC "${3RDPARTY_DIR}/smallft/smallft.cpp")
-target_include_directories(smallft PUBLIC "${3RDPARTY_DIR}/smallft")
-target_disable_warnings(smallft)
-
-add_custom_command(
-	OUTPUT "${CMAKE_BINARY_DIR}/mumble_flags.qrc"
-	COMMAND Python::Interpreter
-	ARGS "${CMAKE_SOURCE_DIR}/scripts/generate_flag_qrc.py" --flag-dir "${CMAKE_SOURCE_DIR}/3rdparty/flag-icons/flags/4x3" --output "${CMAKE_BINARY_DIR}/mumble_flags.qrc"
-	COMMENT "Generating mumble_flags.qrc"
-)
-list(APPEND MUMBLE_SOURCES "${CMAKE_BINARY_DIR}/mumble_flags.qrc")
 
 add_library(mumble_client_object_lib OBJECT ${MUMBLE_SOURCES})
-target_link_libraries(mumble_client_object_lib PUBLIC smallft)
+target_include_directories(mumble_client_object_lib PUBLIC "${3RDPARTY_DIR}/speexdsp/include" "${3RDPARTY_DIR}/smallft")
+target_link_libraries(mumble_client_object_lib PUBLIC mumble)
+
+# FFI Callbacks
+qt_wrap_cpp(mumble_client_object_lib ../ffi.cpp)
 
 if(WIN32 AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# We don't want the console to appear in release builds.
-	add_executable(mumble WIN32 "main.cpp")
+	add_executable(mumble-client WIN32 "main.cpp")
 else()
-	add_executable(mumble "main.cpp")
+	add_executable(mumble-client "main.cpp")
 endif()
 
 if(WIN32)
@@ -377,10 +357,10 @@ if(WIN32)
 	)
 
 	if(elevation)
-		set_property(TARGET mumble APPEND_STRING PROPERTY LINK_FLAGS " /MANIFESTUAC:\"level=\'asInvoker\' uiAccess=\'true\'\"")
+		set_property(TARGET mumble-client APPEND_STRING PROPERTY LINK_FLAGS " /MANIFESTUAC:\"level=\'asInvoker\' uiAccess=\'true\'\"")
 	endif()
 elseif(APPLE)
-	set_target_properties(mumble
+	set_target_properties(mumble-client
 		PROPERTIES
 			OUTPUT_NAME "Mumble"
 			MACOSX_BUNDLE TRUE
@@ -397,11 +377,11 @@ add_custom_command(
 	COMMENT "Generating ApplicationPalette.h"
 	DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/ApplicationPaletteTemplate.h"
 )
-target_sources(mumble PRIVATE "ApplicationPalette.h")
-target_include_directories(mumble PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_sources(mumble-client PRIVATE "ApplicationPalette.h")
+target_include_directories(mumble-client PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-target_link_libraries(mumble PRIVATE mumble_client_object_lib shared spdlog::spdlog)
-target_link_libraries(mumble PRIVATE CLI11::CLI11)
+target_link_libraries(mumble-client PRIVATE mumble_client_object_lib spdlog::spdlog speexdsp)
+target_link_libraries(mumble-client PRIVATE CLI11::CLI11)
 
 target_compile_definitions(mumble_client_object_lib
 	PUBLIC
@@ -409,7 +389,7 @@ target_compile_definitions(mumble_client_object_lib
 	"MUMBLE_PLUGIN_PATH=${MUMBLE_INSTALL_ABS_PLUGINDIR}"
 )
 
-set_target_properties(mumble PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set_target_properties(mumble-client PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set_target_properties(mumble_client_object_lib
 	PROPERTIES
@@ -418,7 +398,7 @@ set_target_properties(mumble_client_object_lib
 		AUTOUIC ON
 )
 
-set_target_properties(mumble
+set_target_properties(mumble-client
 	PROPERTIES
 		AUTOMOC ON
 		AUTORCC ON
@@ -426,12 +406,12 @@ set_target_properties(mumble
 )
 
 if(WIN32)
-	install(TARGETS mumble RUNTIME DESTINATION "${MUMBLE_INSTALL_EXECUTABLEDIR}" COMPONENT mumble_client)
+	install(TARGETS mumble-client RUNTIME DESTINATION "${MUMBLE_INSTALL_EXECUTABLEDIR}" COMPONENT mumble_client)
 else()
 	if(NOT APPLE)
-		install(TARGETS mumble RUNTIME DESTINATION "${MUMBLE_INSTALL_EXECUTABLEDIR}" COMPONENT mumble_client)
+		install(TARGETS mumble-client RUNTIME DESTINATION "${MUMBLE_INSTALL_EXECUTABLEDIR}" COMPONENT mumble_client)
 	else()
-		install(TARGETS mumble BUNDLE DESTINATION "${MUMBLE_INSTALL_EXECUTABLEDIR}" COMPONENT mumble_client)
+		install(TARGETS mumble-client BUNDLE DESTINATION "${MUMBLE_INSTALL_EXECUTABLEDIR}" COMPONENT mumble_client)
 	endif()
 endif()
 

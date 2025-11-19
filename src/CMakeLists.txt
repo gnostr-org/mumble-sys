@@ -179,6 +179,7 @@ target_include_directories(mumble
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_CURRENT_BINARY_DIR}
+		"${3RDPARTY_DIR}/speexdsp/include"
 	PRIVATE
 		"${3RDPARTY_DIR}/arc4random"
 )
