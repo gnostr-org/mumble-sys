@@ -14,7 +14,9 @@
 #include <unordered_map>
 #include <vector>
 
+#ifdef TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif // TRACY_ENABLE
 
 class AudioReceiver {
 public:
@@ -75,6 +77,10 @@ public:
 
 	template< typename Iterator > static ReceiverRange< Iterator > getReceiverRange(Iterator begin, Iterator end) {
 		ZoneScoped;
+#else
+		Q_UNUSED(begin);
+		Q_UNUSED(end);
+#endif // TRACY_ENABLE
 
 		ReceiverRange< Iterator > range;
 		range.begin = begin;

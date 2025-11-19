@@ -107,6 +107,10 @@ endif()
 
 option(lto "Enables link-time optimizations for release builds" ${LTO_DEFAULT})
 
+if (tracy)
+    add_compile_definitions(TRACY_ENABLE)
+endif()
+
 option(bundled-utfcpp "Use the bundled utf8cpp version instead of looking for one on the system" ON)
 
 include(compiler)

@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <cassert>
 
+#ifdef TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif // TRACY_ENABLE
 
 AudioReceiver::AudioReceiver(ServerUser &receiver, Mumble::Protocol::audio_context_t context,
 							 const VolumeAdjustment &volumeAdjustment)
@@ -66,10 +68,7 @@ void AudioReceiverBuffer::addReceiver(const ServerUser &sender, ServerUser &rece
 }
 
 void AudioReceiverBuffer::forceAddReceiver(ServerUser &receiver, Mumble::Protocol::audio_context_t context,
-										   bool includePositionalData, const VolumeAdjustment &volumeAdjustment) {
-	ZoneScoped;
-
-	std::vector< AudioReceiver > &receiverList = includePositionalData ? m_positionalReceivers : m_regularReceivers;
+								   bool includePositionalData, const VolumeAdjustment &volumeAdjustment) {	std::vector< AudioReceiver > &receiverList = includePositionalData ? m_positionalReceivers : m_regularReceivers;
 	std::unordered_map< const ServerUser *, std::size_t > &userEntryIndices =
 		includePositionalData ? m_positionalReceiverIndices : m_regularReceiverIndices;
 
@@ -93,7 +92,9 @@ void AudioReceiverBuffer::forceAddReceiver(ServerUser &receiver, Mumble::Protoco
 }
 
 void AudioReceiverBuffer::preprocessBuffer() {
+#ifdef TRACY_ENABLE
 	ZoneScoped;
+#endif // TRACY_ENABLE
 
 	preprocessBuffer(m_regularReceivers);
 	preprocessBuffer(m_positionalReceivers);
@@ -115,7 +116,9 @@ std::vector< AudioReceiver > &AudioReceiverBuffer::getReceivers(bool receivePosi
 }
 
 void AudioReceiverBuffer::preprocessBuffer(std::vector< AudioReceiver > &receiverList) {
+#ifdef TRACY_ENABLE
 	ZoneScoped;
+#endif // TRACY_ENABLE
 
 #ifndef NDEBUG
 	// Sort the list such that entries with same receiver are next to each other

@@ -30,7 +30,9 @@
 #include <QtCore/QTimeZone>
 #include <QtCore/QtEndian>
 
+#ifdef TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif // TRACY_ENABLE
 
 #define RATELIMIT(user)                   \
 	if (user->leakyBucket.ratelimit(1)) { \

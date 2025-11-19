@@ -43,8 +43,10 @@
 #include <QtNetwork/QSslConfiguration>
 
 #include "TracyConstants.h"
+#ifdef TRACY_ENABLE
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyC.h>
+#endif // TRACY_ENABLE
 
 #include <algorithm>
 #include <cassert>
@@ -88,7 +90,9 @@ QSslSocket *SslServer::nextPendingSSLConnection() {
 
 Server::Server(unsigned int snum, const ::mumble::db::ConnectionParameter &connectionParam, QObject *p)
 	: QThread(p), m_dbWrapper(connectionParam) {
+#ifdef TRACY_ENABLE
 	tracy::SetThreadName("mumble-server");
+#endif // TRACY_ENABLE
 
 	bValid     = true;
 	iServerNum = snum;
@@ -765,7 +769,9 @@ void Server::udpActivated(int socket) {
 }
 
 void Server::run() {
+#ifdef TRACY_ENABLE
 	tracy::SetThreadName("Audio");
+#endif // TRACY_ENABLE
 
 	qint32 len;
 #if defined(__LP64__)
@@ -810,7 +816,9 @@ void Server::run() {
 	++nfds;
 
 	while (bRunning) {
+#ifdef TRACY_ENABLE
 		FrameMarkNamed(TracyConstants::UDP_FRAME);
+#endif // TRACY_ENABLE
 
 #ifdef Q_OS_UNIX
 		int pret = poll(fds.data(), nfds, -1);
@@ -885,7 +893,9 @@ void Server::run() {
 #endif
 
 				// Capture only the processing without the polling
+#ifdef TRACY_ENABLE
 				ZoneScopedN(TracyConstants::UDP_PACKET_PROCESSING_ZONE);
+#endif // TRACY_ENABLE
 
 				if (len == 0) {
 					break;
@@ -921,7 +931,9 @@ void Server::run() {
 					&& m_udpDecoder.decodePing(
 						std::span< Mumble::Protocol::byte >(encrypt, static_cast< std::size_t >(len)))
 					&& m_udpDecoder.getMessageType() == Mumble::Protocol::UDPMessageType::Ping) {
+#ifdef TRACY_ENABLE
 					ZoneScopedN(TracyConstants::PING_PROCESSING_ZONE);
+#endif // TRACY_ENABLE
 
 					std::span< const Mumble::Protocol::byte > encodedPing =
 						handlePing(m_udpDecoder, m_udpPingEncoder, true);
@@ -953,7 +965,9 @@ void Server::run() {
 						continue;
 					}
 				} else {
+#ifdef TRACY_ENABLE
 					ZoneScopedN(TracyConstants::DECRYPT_UNKNOWN_PEER_ZONE);
+#endif // TRACY_ENABLE
 
 					// Unknown peer
 					for (ServerUser *usr : qhHostUsers.value(ha)) {
@@ -1008,7 +1022,9 @@ void Server::run() {
 							break;
 						}
 						case Mumble::Protocol::UDPMessageType::Ping: {
+#ifdef TRACY_ENABLE
 							ZoneScopedN(TracyConstants::UDP_PING_PROCESSING_ZONE);
+#endif // TRACY_ENABLE
 
 							Mumble::Protocol::PingData pingData = m_udpDecoder.getPingData();
 							if (!pingData.requestAdditionalInformation && !pingData.containsAdditionalInformation) {
