@@ -336,18 +336,22 @@ set(MUMBLE_SOURCES
 )
 
 add_library(mumble_client_object_lib STATIC ${MUMBLE_SOURCES})
+
+target_link_libraries(mumble_client_object_lib PUBLIC Qt6::Sql)
+target_include_directories(mumble_client_object_lib SYSTEM PRIVATE /opt/homebrew/Cellar/qt/6.9.3/lib/QtSql.framework/Headers)
+
+message(STATUS "Qt6_Gui_INCLUDE_DIRS: ${Qt6_Gui_INCLUDE_DIRS}")
+message(STATUS "Qt6_Widgets_INCLUDE_DIRS: ${Qt6_Widgets_INCLUDE_DIRS}")
 target_include_directories(mumble_client_object_lib PUBLIC
 	"${3RDPARTY_DIR}/speexdsp/include"
 	"${3RDPARTY_DIR}/smallft"
-	${Qt6_Core_INCLUDE_DIRS}
-	${Qt6_Network_INCLUDE_DIRS}
-	${Qt6_Xml_INCLUDE_DIRS}
-	${Qt6_Concurrent_INCLUDE_DIRS}
-	${Qt6_Sql_INCLUDE_DIRS}
-	${Qt6_Svg_INCLUDE_DIRS}
-	${Qt6_Widgets_INCLUDE_DIRS}
+	"${3RDPARTY_DIR}/utfcpp/source"
+	"/opt/homebrew/Cellar/qt/6.9.3/include"
+	"/opt/homebrew/Cellar/qt/6.9.3/include/QtSql"
+	"/opt/homebrew/Cellar/qt/6.9.3/lib/QtConcurrent.framework/Headers"
+	"/opt/homebrew/Cellar/qt/6.9.3/lib/QtSvg.framework/Headers"
 )
-target_link_libraries(mumble_client_object_lib PUBLIC mumble)
+target_link_libraries(mumble_client_object_lib PUBLIC mumble smallft)
 
 # FFI Callbacks
 qt_wrap_cpp(mumble_client_object_lib ../ffi.cpp)
@@ -553,7 +557,7 @@ else()
 	target_link_libraries(mumble_client_object_lib PUBLIC ${sndfile_LIBRARIES})
 endif()
 
-target_link_libraries(mumble_client_object_lib PUBLIC mumble speexdsp rnnoise)
+target_link_libraries(mumble_client_object_lib PUBLIC mumble speexdsp rnnoise Qt6::Core Qt6::Gui Qt6::Widgets)
 
 if(static)
 	if(TARGET Qt6::QSQLiteDriverPlugin)

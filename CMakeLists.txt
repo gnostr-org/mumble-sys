@@ -6,6 +6,8 @@
 
 cmake_minimum_required(VERSION 3.23...4.2)
 
+set(CMAKE_PREFIX_PATH "/opt/homebrew" ${CMAKE_PREFIX_PATH})
+
 set(BUILD_NUMBER CACHE STRING "The build number of the current build. Will be used in Mumble's version to make sure newer builds upgrade older installations properly.")
 set(BUILD_RELEASE_DATE CACHE STRING "The release date to be used in the generated appstream metadata.")
 
@@ -64,6 +66,7 @@ find_package(Python 3 COMPONENTS Interpreter REQUIRED)
 find_package(PostgreSQL REQUIRED)
 # find_package(MySQL REQUIRED)
 
+find_package(Qt6 COMPONENTS Core Network Xml Concurrent Sql Svg Widgets REQUIRED)
 
 check_ipo_supported(RESULT LTO_DEFAULT)
 
@@ -185,6 +188,8 @@ else()
 	find_pkg("utf8cpp" REQUIRED)
 	add_library(utfcpp ALIAS utf8cpp::utf8cpp)
 endif()
+
+add_library(smallft STATIC ${3RDPARTY_DIR}/smallft/smallft.cpp)
 
 if(g15 AND WIN32)
 	add_subdirectory("helpers/g15helper")
