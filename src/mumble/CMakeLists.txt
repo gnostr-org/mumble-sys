@@ -333,6 +333,7 @@ set(MUMBLE_SOURCES
 	"${SHARED_SOURCE_DIR}/SignalCurry.h"
 	"${SHARED_SOURCE_DIR}/User.cpp"
 	"${SHARED_SOURCE_DIR}/User.h"
+	"${3RDPARTY_DIR}/smallft/smallft.c"
 )
 
 add_library(mumble_client_object_lib OBJECT ${MUMBLE_SOURCES})
@@ -346,7 +347,7 @@ if(WIN32 AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# We don't want the console to appear in release builds.
 	add_executable(mumble-client WIN32 "main.cpp")
 else()
-	add_executable(mumble-client "main.cpp")
+	add_executable(mumble-client "main.cpp" $<TARGET_OBJECTS:mumble_client_object_lib>)
 endif()
 
 if(WIN32)
@@ -380,8 +381,7 @@ add_custom_command(
 target_sources(mumble-client PRIVATE "ApplicationPalette.h")
 target_include_directories(mumble-client PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-target_link_libraries(mumble-client PRIVATE mumble_client_object_lib spdlog::spdlog speexdsp)
-target_link_libraries(mumble-client PRIVATE CLI11::CLI11)
+target_link_libraries(mumble-client PRIVATE mumble_client_object_lib spdlog::spdlog speexdsp mumble utfcpp Qt6::Concurrent Qt6::Sql Qt6::Svg Qt6::Widgets CLI11::CLI11)
 
 target_compile_definitions(mumble_client_object_lib
 	PUBLIC
