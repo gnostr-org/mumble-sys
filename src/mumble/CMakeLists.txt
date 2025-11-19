@@ -340,6 +340,13 @@ set(MUMBLE_SOURCES
 	../ffi.cpp
 )
 
+# FFI Callbacks
+qt_wrap_cpp(mumble_FFI_MOC ../ffi.cpp)
+
+list(APPEND mumble_SOURCES
+	${mumble_FFI_MOC}
+)
+
 add_library(smallft STATIC "${3RDPARTY_DIR}/smallft/smallft.cpp")
 target_include_directories(smallft PUBLIC "${3RDPARTY_DIR}/smallft")
 target_disable_warnings(smallft)

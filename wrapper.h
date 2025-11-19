@@ -264,6 +264,10 @@ mumble_error_t (*playSample)(mumble_plugin_id_t callerID, const char *samplePath
     
 
     
+
+    
+
+    
 };
     
 
@@ -272,7 +276,79 @@ mumble_error_t (*playSample)(mumble_plugin_id_t callerID, const char *samplePath
     
 
     
-void mumble_connect(const char *hostname, int port, const char *username, const char *password);
+
+    
+
+    
+
+    
+
+    
+typedef void (*on_connected_callback)();
+    
+
+    
+
+    
+
+    
+typedef void (*on_disconnected_callback)(const char *reason);
+    
+
+    
+
+    
+
+    
+typedef void (*on_error_callback)(const char *reason);
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+void mumble_connect(const char *hostname, int port, const char *username, const char *password,
+    
+
+    
+
+    
+
+    
+                    on_connected_callback on_connected,
+    
+
+    
+
+    
+
+    
+                    on_disconnected_callback on_disconnected,
+    
+
+    
+
+    
+
+    
+                    on_error_callback on_error);
+    
+
+    
+
+    
+
+    
+
     
 
     
@@ -284,7 +360,15 @@ void mumble_connect(const char *hostname, int port, const char *username, const 
     
 
     
+
+    
+
+    
 }
+    
+
+    
+
     
 
     
