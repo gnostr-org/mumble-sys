@@ -1055,7 +1055,9 @@ void Server::run() {
 }
 
 bool Server::checkDecrypt(ServerUser *u, const unsigned char *encrypt, unsigned char *plain, unsigned int len) {
+#ifdef TRACY_ENABLE
 	ZoneScoped;
+#endif // TRACY_ENABLE
 
 	QMutexLocker l(&u->qmCrypt);
 
