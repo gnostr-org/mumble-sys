@@ -1075,7 +1075,9 @@ bool Server::checkDecrypt(ServerUser *u, const unsigned char *encrypt, unsigned 
 }
 
 void Server::sendMessage(ServerUser &u, const unsigned char *data, int len, QByteArray &cache, bool force) {
+#ifdef TRACY_ENABLE
 	ZoneScoped;
+#endif // TRACY_ENABLE
 
 	if ((u.aiUdpFlag.loadRelaxed() == 1 || force) && (u.sUdpSocket != INVALID_SOCKET)) {
 #if defined(__LP64__)
