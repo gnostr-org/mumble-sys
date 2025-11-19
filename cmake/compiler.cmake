@@ -65,9 +65,7 @@ if(MSVC)
 		)
 	endif()
 elseif(UNIX OR MINGW)
-	add_compile_options(
-		"-fvisibility=hidden"
-	)
+
 
 	if(optimize)
 		add_compile_options(

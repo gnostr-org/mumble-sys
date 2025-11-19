@@ -333,11 +333,20 @@ set(MUMBLE_SOURCES
 	"${SHARED_SOURCE_DIR}/SignalCurry.h"
 	"${SHARED_SOURCE_DIR}/User.cpp"
 	"${SHARED_SOURCE_DIR}/User.h"
-	"${3RDPARTY_DIR}/smallft/smallft.c"
 )
 
-add_library(mumble_client_object_lib OBJECT ${MUMBLE_SOURCES})
-target_include_directories(mumble_client_object_lib PUBLIC "${3RDPARTY_DIR}/speexdsp/include" "${3RDPARTY_DIR}/smallft")
+add_library(mumble_client_object_lib STATIC ${MUMBLE_SOURCES})
+target_include_directories(mumble_client_object_lib PUBLIC
+	"${3RDPARTY_DIR}/speexdsp/include"
+	"${3RDPARTY_DIR}/smallft"
+	${Qt6_Core_INCLUDE_DIRS}
+	${Qt6_Network_INCLUDE_DIRS}
+	${Qt6_Xml_INCLUDE_DIRS}
+	${Qt6_Concurrent_INCLUDE_DIRS}
+	${Qt6_Sql_INCLUDE_DIRS}
+	${Qt6_Svg_INCLUDE_DIRS}
+	${Qt6_Widgets_INCLUDE_DIRS}
+)
 target_link_libraries(mumble_client_object_lib PUBLIC mumble)
 
 # FFI Callbacks
@@ -347,7 +356,7 @@ if(WIN32 AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# We don't want the console to appear in release builds.
 	add_executable(mumble-client WIN32 "main.cpp")
 else()
-	add_executable(mumble-client "main.cpp" $<TARGET_OBJECTS:mumble_client_object_lib>)
+	add_executable(mumble-client "main.cpp")
 endif()
 
 if(WIN32)
@@ -381,7 +390,7 @@ add_custom_command(
 target_sources(mumble-client PRIVATE "ApplicationPalette.h")
 target_include_directories(mumble-client PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-target_link_libraries(mumble-client PRIVATE mumble_client_object_lib spdlog::spdlog speexdsp mumble utfcpp Qt6::Concurrent Qt6::Sql Qt6::Svg Qt6::Widgets CLI11::CLI11)
+target_link_libraries(mumble-client PRIVATE mumble_client_object_lib mumble mumble_client_object_lib mumble CLI11::CLI11 utfcpp Qt6::Concurrent Qt6::Sql Qt6::Svg Qt6::Widgets speexdsp rnnoise protobuf::libprotobuf OpenSSL::Crypto OpenSSL::SSL Qt6::Core Qt6::Network Qt6::Xml Tracy::TracyClient spdlog::spdlog ${LIB_APPKIT} ${LIB_APPLICATIONSERVICES} ${LIB_CARBON} ${LIB_SCRIPTINGBRIDGE} ${LIB_SECURITY} ${LIB_XAR})
 
 target_compile_definitions(mumble_client_object_lib
 	PUBLIC
@@ -544,7 +553,7 @@ else()
 	target_link_libraries(mumble_client_object_lib PUBLIC ${sndfile_LIBRARIES})
 endif()
 
-target_link_libraries(mumble_client_object_lib PUBLIC mumble utfcpp Qt6::Concurrent Qt6::Sql Qt6::Svg Qt6::Widgets speexdsp)
+target_link_libraries(mumble_client_object_lib PUBLIC mumble speexdsp rnnoise)
 
 if(static)
 	if(TARGET Qt6::QSQLiteDriverPlugin)
@@ -687,15 +696,7 @@ else()
 			target_link_libraries(mumble_client_object_lib PUBLIC Qt6::QCocoaIntegrationPlugin)
 		endif()
 
-		target_link_libraries(mumble_client_object_lib
-			PUBLIC
-				${LIB_APPKIT}
-				${LIB_APPLICATIONSERVICES}
-				${LIB_CARBON}
-				${LIB_SCRIPTINGBRIDGE}
-				${LIB_SECURITY}
-				${LIB_XAR}
-		)
+		target_link_libraries(mumble-client PRIVATE ${LIB_APPKIT} ${LIB_APPLICATIONSERVICES} ${LIB_CARBON} ${LIB_SCRIPTINGBRIDGE} ${LIB_SECURITY} ${LIB_XAR})
 	endif()
 endif()
 
