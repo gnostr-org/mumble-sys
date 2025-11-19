@@ -253,9 +253,39 @@ struct MumbleAPI_v_1_2_0 {
     mumble_error_t (*setMumbleSetting_string)(mumble_plugin_id_t callerID, mumble_settings_key_t key, const char *value);
     mumble_error_t (*sendData)(mumble_plugin_id_t callerID, mumble_connection_t connection, const mumble_userid_t *users, size_t userCount, const uint8_t *data, size_t dataLength, const char *dataID);
     mumble_error_t (*log)(mumble_plugin_id_t callerID, const char *message);
-    mumble_error_t (*playSample)(mumble_plugin_id_t callerID, const char *samplePath, float volume);
-};
+    
 
+    
+
+    
+
+    
+mumble_error_t (*playSample)(mumble_plugin_id_t callerID, const char *samplePath, float volume);
+    
+
+    
+};
+    
+
+    
+
+    
+
+    
+void mumble_connect(const char *hostname, int port, const char *username, const char *password);
+    
+
+    
+
+    
+
+    
 #ifdef __cplusplus
+    
+
+    
 }
+    
+
+    
 #endif

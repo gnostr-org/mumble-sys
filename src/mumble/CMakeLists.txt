@@ -336,6 +336,8 @@ set(MUMBLE_SOURCES
 
 	"mumble.qrc"
 	"${CMAKE_SOURCE_DIR}/themes/DefaultTheme.qrc"
+	# FFI
+	../ffi.cpp
 )
 
 add_library(smallft STATIC "${3RDPARTY_DIR}/smallft/smallft.cpp")
