@@ -544,15 +544,7 @@ else()
 	target_link_libraries(mumble_client_object_lib PUBLIC ${sndfile_LIBRARIES})
 endif()
 
-target_link_libraries(mumble_client_object_lib
-	PUBLIC
-		shared
-		utfcpp
-		Qt6::Concurrent
-		Qt6::Sql
-		Qt6::Svg
-		Qt6::Widgets
-)
+target_link_libraries(mumble_client_object_lib PUBLIC mumble utfcpp Qt6::Concurrent Qt6::Sql Qt6::Svg Qt6::Widgets speexdsp)
 
 if(static)
 	if(TARGET Qt6::QSQLiteDriverPlugin)
